@@ -14,6 +14,7 @@ function cleanNPM($dir) {
         $file = $outfile.Split(".")
         rm $file[0]
     }
+    cd ../..
 }
 $loop = $TRUE
  while ($loop) {
