@@ -34,7 +34,7 @@ $loop = $TRUE
                 ../../git/cmd/git.exe merge
                 cd ../..
             } else {
-                Write-Host "Invaild project '$($cmd[2])'" -foregroundcolor "red"
+                Write-Host "Invaild project '$($cmd[1])'" -foregroundcolor "red"
             }
         } else {
           Write-Host "Usage: rebase <name>" -foregroundcolor "magenta"
@@ -47,7 +47,7 @@ $loop = $TRUE
                 ../../git/cmd/git.exe commit
                 cd ../..
             } else {
-                Write-Host "Invaild project '$($cmd[2])'" -foregroundcolor "red"
+                Write-Host "Invaild project '$($cmd[1])'" -foregroundcolor "red"
             }
         } else {
           Write-Host "Usage: commit <name>" -foregroundcolor "magenta"
@@ -60,7 +60,7 @@ $loop = $TRUE
                 ../../git/cmd/git.exe push $cmd[1]
                 cd ../..
             } else {
-                Write-Host "Invaild project '$($cmd[2])'" -foregroundcolor "red"
+                Write-Host "Invaild project '$($cmd[1])'" -foregroundcolor "red"
             }
         } else {
           Write-Host "Usage: push <name>" -foregroundcolor "magenta"
