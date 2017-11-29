@@ -1,5 +1,5 @@
 #NodeGitModular - Import-Python Nov 2017
-
+$path = (Get-Item -Path ".\" -Verbose).FullName
 if ([System.IntPtr]::Size -eq 4) { 
     $osBit = "32"
 } else { 
@@ -29,17 +29,19 @@ function downloadAlways($url, $targetFile, $name) {
     wget.exe --quiet --no-check-certificate --output-document=$targetFile $url 
 }
 #Unzips a file into a folder
-function unzip($file, $outpath) {
-    if ($PSVersionTable.PSVersion -eq "2.0") {
-        $shellApplication = new-object -com shell.application 
-        $zipPackage = $shellApplication.NameSpace($file) 
-        $destinationFolder = $shellApplication.NameSpace($outpath) 
-
-        # CopyHere vOptions Flag # 4 - Do not display a progress dialog box. 
-        # 16 - Respond with "Yes to All" for any dialog box that is displayed. 
-
-        $destinationFolder.CopyHere($zipPackage.Items(),20) 
+function unzip($file, $outpath, $newer) {
+     if ($PSVersionTable.PSVersion -eq "2.0") {
+           $file = $path + "\" + $file
+           $outpath = $path.Substring(0,$path.Length-4) + "\" + $outpath
+            
+           mkdir $outpath 
+           $shell_app=new-object -com shell.application
+           $zip_file = $shell_app.namespace($file)
+           $destination = $shell_app.namespace($outpath)
+           $destination.Copyhere($zip_file.items())
     } else {
+        $file = $path + "\" + $file
+        $outpath = $path.Substring(0,$path.Length-4) + "\" + $newer
         Add-Type -AssemblyName System.IO.Compression.FileSystem
         [System.IO.Compression.ZipFile]::ExtractToDirectory($file, $outpath)
     }
@@ -61,6 +63,7 @@ function deldir($dir) {
 #Main Functions
 #Get WGET
 function getWGET {
+ if (!("wget.exe" | Test-Path)) {
     $start_time = Get-Date
     Write-Host "`n[NodeGit Portable] Fetching WGET"
     $UserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)"
@@ -68,6 +71,9 @@ function getWGET {
     $WebClient.Headers.Add([System.Net.HttpRequestHeader]::UserAgent, $UserAgent);
     $WebClient.downloadFile("https://eternallybored.org/misc/wget/current/wget.exe", "wget.exe")
     Write-Host "[NodeGit Portable] Fetched WGET in $((Get-Date).Subtract($start_time).Seconds) second(s)"
+    } else {
+      Write-Host "`n[NodeGit Portable] WGET already downloaded"
+    }
 }
 
 #Get NodeGit Interface (exe and ps1 file)
@@ -95,7 +101,7 @@ function getGit() {
     $MinGitUrl = "https://github.com/git-for-windows/git/releases/download/" + $content.tag_name + "/" + $MinGitFile
     downloadVerify $MinGitUrl $MinGitFile "MinGit [$($version)]"
     deldir "../git"
-    unzip $MinGitFile "../git"
+    unzip $MinGitFile "git" "git"
 
     Write-Host "[NodeGit Portable] Fetched Git Index in $((Get-Date).Subtract($start_time).Seconds) second(s)"
     return $version
@@ -119,7 +125,7 @@ function getNode() {
 
     downloadVerify $NodeUrl $NodeFile "Node.js [$($version)]"
     deldir "../node"
-    unzip $NodeFile "../"
+    unzip $NodeFile "node" ""
     Write-Host "[NodeGit Portable] Fetched Node Index in $((Get-Date).Subtract($start_time).Seconds) second(s)"
     return $version
 }
@@ -137,7 +143,7 @@ function getNPM() {
 
     downloadVerify $NPMUrl $NPMFile "NPM [$($version)]"
     deldir "../npm"
-    unzip $NPMFile "../"
+    unzip $NPMFile "npm" ""
 
     Write-Host "[NodeGit Portable] Fetched NPM Index in $((Get-Date).Subtract($start_time).Seconds) second(s)"
     return $version
@@ -153,6 +159,7 @@ function renameFolders($npmVersion, $nodeVersion) {
     if(Test-Path -Path $dir){
         Rename-Item -Path $dir -NewName "node" -ErrorAction Stop
     }
+    Set-Location "bin/"
 }
 #This is the main code! Cool :)
 
@@ -162,11 +169,14 @@ $gitVersion = getGit #GET GIT
 $nodeVersion = getNode #GET Node
 $npmVersion = getNPM #GET NPM for NODE
 
-renameFolders $npmVersion $nodeVersion
+if ($PSVersionTable.PSVersion -ne "2.0") {
+    renameFolders $npmVersion $nodeVersion
+}
 
 #Lets boot right into NodeGitInterface 
+Set-Location "../"
 Write-Host "`n[NodeGit Portable] NodeGit Installed Succesfully!"
 Write-Host "[NodeGit Portable] Booting CLI..."
-Start-Sleep -s 3
+Start-Sleep -s 2
 start-process NodeGitInterface.exe
 exit
