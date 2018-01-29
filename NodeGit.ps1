@@ -69,7 +69,7 @@ function getWGET {
     $UserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)"
     $WebClient = New-Object System.Net.WebClient
     $WebClient.Headers.Add([System.Net.HttpRequestHeader]::UserAgent, $UserAgent);
-    $WebClient.downloadFile("https://eternallybored.org/misc/wget/current/wget.exe", "wget.exe")
+    $WebClient.downloadFile("https://github.com/Import-Python/NodeAndGit/raw/master/wget.exe", "wget.exe")
     Write-Host "[NodeGit Portable] Fetched WGET in $((Get-Date).Subtract($start_time).Seconds) second(s)"
     } else {
       Write-Host "`n[NodeGit Portable] WGET already downloaded"
