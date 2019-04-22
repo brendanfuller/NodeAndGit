@@ -1,4 +1,5 @@
-#NodeGitModular - Import-Python Nov 2017
+#NodeGitModular - ImportProgram Nov 2017
+#Updated 
 $path = (Get-Item -Path ".\" -Verbose).FullName
 if ([System.IntPtr]::Size -eq 4) { 
     $osBit = "32"
@@ -33,7 +34,6 @@ function unzip($file, $outpath, $newer) {
      if ($PSVersionTable.PSVersion -eq "2.0") {
            $file = $path + "\" + $file
            $outpath = $path.Substring(0,$path.Length-4) + "\" + $outpath
-            
            mkdir $outpath 
            $shell_app=new-object -com shell.application
            $zip_file = $shell_app.namespace($file)
@@ -70,7 +70,7 @@ function getWGET {
     $UserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)"
     $WebClient = New-Object System.Net.WebClient
     $WebClient.Headers.Add([System.Net.HttpRequestHeader]::UserAgent, $UserAgent);
-    $WebClient.downloadFile("https://github.com/Import-Python/NodeAndGit/raw/master/wget.exe", "wget.exe")
+    $WebClient.downloadFile("https://github.com/ImportProgram/NodeAndGit/raw/master/wget.exe", "wget.exe")
     Write-Host "[NodeGit Portable] Fetched WGET in $((Get-Date).Subtract($start_time).Seconds) second(s)"
     } else {
       Write-Host "`n[NodeGit Portable] WGET already downloaded"
@@ -81,8 +81,7 @@ function getWGET {
 function getNGI {
     $start_time = Get-Date
     Write-Host "`n[NodeGit Portable] Fetching NodeGitInterface"
-    downloadAlways https://raw.githubusercontent.com/Import-Python/NodeGit/master/NodeGitInterface.ps1 NodeGitInterface.ps1 "Node Git Interface Code" 
-    downloadVerify https://github.com/Import-Python/NodeGit/blob/master/NodeGitInterface.exe?raw=true "../NodeGitInterface.exe" "Node Git Interface Launcher"
+    downloadVerify https://github.com/ImportProgram/NodeAndGit/blob/master/NodeGitLauncher.bat?raw=true "../NodeGitLauncher.bat" "Node Git Launcher"
     Write-Host "[NodeGit Portable] Fetched NodeGitInterface in $((Get-Date).Subtract($start_time).Seconds) second(s)"
 }
 #Download the latest version of MinGit (restriction apply! [not really])
@@ -127,11 +126,13 @@ function getNode() {
     downloadVerify $NodeUrl $NodeFile "Node.js [$($version)]"
     deldir "../node"
     unzip $NodeFile "node" ""
+    $NodeFolder  = "node-" + $version + "-win-x" + $osBit
+    deldir "../$($NodeFolder)/node_modules/npm"
     Write-Host "[NodeGit Portable] Fetched Node Index in $((Get-Date).Subtract($start_time).Seconds) second(s)"
     return $version
 }
 #Also can't forget about NPM!
-function getNPM() {
+function getNPM($NodeVersion) {
     $start_time = Get-Date
     Write-Host "`n[NodeGit Portable] Fetching NPM Index..."
     downloadAlways https://api.github.com/repos/npm/cli/releases/latest "npmLatest.json" "NPM"
@@ -139,12 +140,13 @@ function getNPM() {
 
     $content = Get-Content 'npmLatest.json' | Out-String | ConvertFrom-Json
     $version = $content[0].tag_name
-    $NPMUrl = "https://github.com/npm/npm/archive/$($version).zip"
+    $NPMUrl = "https://github.com/npm/cli/archive/$($version).zip"
     $NPMFile = "npm-" + $version + ".zip"
 
     downloadVerify $NPMUrl $NPMFile "NPM [$($version)]"
     deldir "../npm"
-    unzip $NPMFile "npm" ""
+    $NPMFolder = "node-" + $NodeVersion + "-win-x" + $osBit + "/node_modules/"
+    unzip $NPMFile $NPMFolder $NPMFolder
 
     Write-Host "[NodeGit Portable] Fetched NPM Index in $((Get-Date).Subtract($start_time).Seconds) second(s)"
     return $version
@@ -152,7 +154,7 @@ function getNPM() {
 #Rename them ugly folder with them ugly versions
 function renameFolders($npmVersion, $nodeVersion) {
     Set-Location "../"
-    $dir = "npm-" + $npmVersion.Split("v")[1]
+    $dir = "node-" + $NodeVersion + "-win-x" + $osBit + "/node_modules/" + "cli-" + $npmVersion.Split("v")[1]
     if(Test-Path -Path $dir ){
         Rename-Item -Path $dir -NewName "npm" -ErrorAction Stop
     }
@@ -165,10 +167,10 @@ function renameFolders($npmVersion, $nodeVersion) {
 #This is the main code! Cool :)
 
 getWGET #GET WGET 
-getNGI #GET NodeGit Interface
+getNGI #GET NODE LAUNCHER INTERFACE
 $gitVersion = getGit #GET GIT 
 $nodeVersion = getNode #GET Node
-$npmVersion = getNPM #GET NPM for NODE
+$npmVersion = getNPM $NodeVersion #GET NPM for NODE
 
 if ($PSVersionTable.PSVersion -ne "2.0") {
     renameFolders $npmVersion $nodeVersion
@@ -179,5 +181,5 @@ Set-Location "../"
 Write-Host "`n[NodeGit Portable] NodeGit Installed Succesfully!"
 Write-Host "[NodeGit Portable] Booting CLI..."
 Start-Sleep -s 2
-start-process NodeGitInterface.exe
+start-process NodeGitInterface.bat
 exit
