@@ -181,5 +181,5 @@ Set-Location "../"
 Write-Host "`n[NodeGit Portable] NodeGit Installed Succesfully!"
 Write-Host "[NodeGit Portable] Booting CLI..."
 Start-Sleep -s 2
-start-process NodeGitInterface.bat
+start-process NodeGitLauncher.bat
 exit
