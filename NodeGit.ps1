@@ -1,5 +1,5 @@
 #NodeGitModular - ImportProgram Nov 2017
-#Updated 
+#Updated March 2019
 $path = (Get-Item -Path ".\" -Verbose).FullName
 if ([System.IntPtr]::Size -eq 4) { 
     $osBit = "32"
