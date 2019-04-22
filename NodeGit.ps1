@@ -18,7 +18,7 @@ function ConvertFrom-Json20([object] $item){
 function downloadVerify($url, $targetFile, $name="") {
    if (!($targetFile | Test-Path)) {
        $start_time = Get-Date 
-       wget.exe --quiet --no-check-certificate --output-document=$targetFile $url 
+       .\wget.exe --quiet --no-check-certificate --output-document=$targetFile $url 
 	   Write-Host "[NodeGit Portable] Sucessfully downloaded $($name) in $((Get-Date).Subtract($start_time).Seconds) second(s)"
    } else {
        Write-Host "[NodeGit Portable] $($name) is up to date!"
@@ -26,7 +26,7 @@ function downloadVerify($url, $targetFile, $name="") {
 }
 #Downloads the json index for MINGIT, NODE and NPM
 function downloadAlways($url, $targetFile, $name) {
-    wget.exe --quiet --no-check-certificate --output-document=$targetFile $url 
+    .\wget.exe --quiet --no-check-certificate --output-document=$targetFile $url 
 }
 #Unzips a file into a folder
 function unzip($file, $outpath, $newer) {
@@ -66,6 +66,7 @@ function getWGET {
  if (!("wget.exe" | Test-Path)) {
     $start_time = Get-Date
     Write-Host "`n[NodeGit Portable] Fetching WGET"
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     $UserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; .NET CLR 1.0.3705;)"
     $WebClient = New-Object System.Net.WebClient
     $WebClient.Headers.Add([System.Net.HttpRequestHeader]::UserAgent, $UserAgent);
@@ -133,7 +134,7 @@ function getNode() {
 function getNPM() {
     $start_time = Get-Date
     Write-Host "`n[NodeGit Portable] Fetching NPM Index..."
-    downloadAlways https://api.github.com/repos/npm/npm/releases/latest "npmLatest.json" "NPM"
+    downloadAlways https://api.github.com/repos/npm/cli/releases/latest "npmLatest.json" "NPM"
 
 
     $content = Get-Content 'npmLatest.json' | Out-String | ConvertFrom-Json
