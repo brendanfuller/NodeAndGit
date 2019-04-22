@@ -1,5 +1,5 @@
 @echo off
-ECHO [NodeGit Portable v1.0 by Import-Python]
+ECHO [NodeGit Portable v1.1 by ImportProgram]
 if not exist "NodeGit" MKDIR NodeGit
 CD NodeGit
 if not exist "bin" MKDIR bin
