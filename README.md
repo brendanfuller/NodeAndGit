@@ -1,5 +1,5 @@
 # NodeAndGit
-A portable way of installing Node and Git, with the latest NPM, designed for Electron projects
+A portable way of installing Node and Git, with the latest NPM, designed for Electron and Expo projects
 
 ## Usage
 Grab the lastest bat file from [releases](https://github.com/ImportProgram/NodeAndGit/releases), and install away!
